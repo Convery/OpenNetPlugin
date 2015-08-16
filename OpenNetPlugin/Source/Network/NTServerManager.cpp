@@ -12,6 +12,8 @@
 #include "..\Interfaces\IService.h"
 #include "..\STDInclude.h"
 #include <thread>
+#include <dbghelp.h>
+#pragma comment(lib, "DbgHelp.lib")
 
 // Internal mappings of servers.
 std::unordered_map<uint64_t, uint32_t>          NTServerManager::Host_ProxyAddresses;
@@ -363,4 +365,82 @@ hostent *NTServerManager::NT_GetHostByName(const char *Hostname)
 
         return ResolvedHost;
     }
+}
+
+// Initialization.
+bool NTServerManager::InitializeImportHooks()
+{
+    return false;
+}
+bool NTServerManager::StartProcessingPackets()
+{
+    static std::thread PacketThread;
+
+    if (!PacketThread.joinable())
+    {
+        PacketThread = std::thread(PacketProcessingThread);
+        return true;
+    }
+
+    return false;
+}
+void NTServerManager::PacketProcessingThread()
+{
+    // A ping of < 30ms should be acceptable.
+    std::chrono::milliseconds SleepDuration(30);
+
+    while (true)
+    {
+        std::this_thread::sleep_for(SleepDuration);
+
+        for (auto Iterator = Host_ServerAddresses.begin(); Iterator != Host_ServerAddresses.end(); Iterator++)
+        {
+            try
+            {
+                Iterator->second->Internal_RunServerFrame();
+            }
+            catch (const std::exception &Exception)
+            {
+                DebugPrint(0, "\n\n\n==========================================================");
+                DebugPrint(0, "OpenNet error");
+                DebugPrint(0, Exception.what());
+                DebugPrint(0, "\n=============================================\n");
+
+                DebugPrint(0, "One of the local socket processes threw an unhandled exception.");
+                DebugPrint(0, "The plugin may still work in offline mode but should be restarted.");
+
+                HANDLE hFile = INVALID_HANDLE_VALUE;
+                hFile = CreateFileA("OpenNetCrash.dmp", GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+
+                if (hFile != INVALID_HANDLE_VALUE)
+                {
+                    if(strstr(GetCommandLineA(), "-handledump"))
+                        MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpWithHandleData, NULL, NULL, NULL);
+                    else
+                        MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), hFile, MiniDumpNormal, NULL, NULL, NULL);
+
+                    if (hFile != INVALID_HANDLE_VALUE)
+                        CloseHandle(hFile);
+                }
+            }
+        }
+    }
+}
+
+// Map modification from usercode, returns the index of a server.
+uint64_t NTServerManager::RegisterProxyserver(const char *Hostname, uint32_t IPv4Address)
+{
+    uint64_t InternalAddress = 0x00000000000000FD | static_cast<uint64_t>(FNV1_32Hash((void *)Hostname, (uint32_t)strlen(Hostname))) << 8;
+
+    Host_ProxyAddresses[InternalAddress] = IPv4Address;
+    return InternalAddress;
+}
+uint64_t NTServerManager::RegisterServerInterface(IServer *Server)
+{
+    Host_ServerAddresses.emplace(Server->InternalAddress6, Server);
+    return Server->InternalAddress6;
+}
+void    NTServerManager::RegisterService(uint64_t ServerIPv6, IService *Service)
+{
+    Host_ServerAddresses[ServerIPv6]->Internal_RegisterService(Service);
 }

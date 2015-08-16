@@ -54,9 +54,10 @@ public:
     // Initialization.
     static bool InitializeImportHooks();
     static bool StartProcessingPackets();
+    static void PacketProcessingThread();
 
     // Map modification from usercode, returns the index of a server.
-    static int64_t RegisterProxyserver(const char *Hostname, uint32_t IPv4Address);
-    static int64_t RegisterServerInterface(class IServer *Server);
-    static void    RegisterService(int64_t ServerIndex, class IService *Service);
+    static uint64_t RegisterProxyserver(const char *Hostname, uint32_t IPv4Address);
+    static uint64_t RegisterServerInterface(class IServer *Server);
+    static void    RegisterService(uint64_t ServerIPv6, class IService *Service);
 };
