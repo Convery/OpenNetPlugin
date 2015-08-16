@@ -20,7 +20,7 @@ class NTServerManager
     // Internal mappings of servers.
     static std::unordered_map<uint64_t /*ServerIPv6*/, uint32_t /*ServerIPv4*/>     Host_ProxyAddresses;
     static std::unordered_map<uint64_t /*ServerIPv6*/, class IServer *>             Host_ServerAddresses;
-    static std::unordered_map<void */*Socket*/, class IServer *>                    Host_ConnectionlessSockets;
+    static std::unordered_map<void */*Socket*/, class IServer *>                    Host_ConnectedSockets;
     static std::unordered_map<void */*Socket*/, bool /*Blocked*/>                   Host_SocketBlockStatus;
 
     // Map iteration.
