@@ -135,7 +135,10 @@ int32_t NTServerManager::NT_IOControlSocket(void *Socket, int32_t Command, u_lon
 
     switch (Command)
     {
-        case FIONBIO: ReadableCommand = "FIONBIO"; break;
+        case FIONBIO: ReadableCommand = "FIONBIO"; 
+            // Set the blocking status.
+            Host_SocketBlockStatus[Socket] = *ArgumentPointer == 0;
+            break;
         case FIONREAD: ReadableCommand = "FIONREAD"; break;
         case FIOASYNC: ReadableCommand = "FIOASYNC"; break;
 
@@ -145,9 +148,6 @@ int32_t NTServerManager::NT_IOControlSocket(void *Socket, int32_t Command, u_lon
         case SIOCGLOWAT: ReadableCommand = "SIOCGLOWAT"; break;
         case SIOCATMARK: ReadableCommand = "SIOCATMARK"; break;
     }
-
-    // Set the blocking status.
-    Host_SocketBlockStatus[Socket] = *ArgumentPointer == 0;
 
     nDebugPrint("%s on socket %llu with command \"%s\"", __func__, Socket, ReadableCommand);
     return ioctlsocket((SOCKET)Socket, Command, ArgumentPointer);
