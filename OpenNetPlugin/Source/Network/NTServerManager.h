@@ -29,7 +29,7 @@ class NTServerManager
     static class IServer *FindServerByHost(const char *Hostname);
 
     // Old winsock replacement methods.
-    static void *__stdcall      NT_Accept(void *Socket, sockaddr *Address, int32_t AddressLength);
+    static void *__stdcall      NT_Accept(void *Socket, sockaddr *Address, int32_t *AddressLength);
     static int32_t __stdcall    NT_Bind(void *Socket, const sockaddr *Address, int32_t AddressLength);
     static int32_t __stdcall    NT_CloseSocket(void *Socket);
     static int32_t __stdcall    NT_Connect(void *Socket, const sockaddr *Address, int32_t AddressLength);
