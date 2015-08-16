@@ -370,7 +370,31 @@ hostent *NTServerManager::NT_GetHostByName(const char *Hostname)
 // Initialization.
 bool NTServerManager::InitializeImportHooks()
 {
-    return false;
+#define PATCH_WINSOCK_IAT(name, function) \
+    PatchCount += WriteIATAddress("wsock32.dll", name, BaseAddress, function) ? 1 : 0; \
+    PatchCount += WriteIATAddress("WS2_32.dll", name, BaseAddress, function) ? 1 : 0; 
+
+    uint64_t BaseAddress = (uint64_t)GetModuleHandleA(NULL);
+    uint32_t PatchCount = 0;
+
+    PATCH_WINSOCK_IAT("accept", NT_Accept);
+    PATCH_WINSOCK_IAT("bind", NT_Bind);
+    PATCH_WINSOCK_IAT("closesocket", NT_CloseSocket);
+    PATCH_WINSOCK_IAT("connect", NT_Connect);
+    PATCH_WINSOCK_IAT("getpeername", NT_GetPeerName);
+    PATCH_WINSOCK_IAT("getsockname", NT_GetSockName);
+    PATCH_WINSOCK_IAT("getsockopt", NT_GetSockOpt);
+    PATCH_WINSOCK_IAT("ioctlsocket", NT_IOControlSocket);
+    PATCH_WINSOCK_IAT("listen", NT_Listen);
+    PATCH_WINSOCK_IAT("recv", NT_Receive);
+    PATCH_WINSOCK_IAT("recvfrom", NT_ReceiveFrom);
+    PATCH_WINSOCK_IAT("select", NT_Select);
+    PATCH_WINSOCK_IAT("send", NT_Send);
+    PATCH_WINSOCK_IAT("sendto", NT_SendTo);
+    PATCH_WINSOCK_IAT("setsockopt", NT_SetSockOpt);
+    PATCH_WINSOCK_IAT("gethostbyname", NT_GetHostByName);
+
+    return PatchCount > 0;
 }
 bool NTServerManager::StartProcessingPackets()
 {
