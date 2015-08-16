@@ -33,6 +33,9 @@
     <ClInclude Include="Source\Network\NTServerManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\STDInclude.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Network\NTServerManager.cpp">
