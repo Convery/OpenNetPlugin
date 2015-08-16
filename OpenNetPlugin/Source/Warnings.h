@@ -16,8 +16,9 @@
 //#pragma warning(disable:4565)			// Symbol redefinition.
 //#pragma warning(disable:4668)			// Preprocessor macro is not defined.
 //#pragma warning(disable:4127)			// Conditional expression is constant. while(true) { }
-//#pragma warning(disable:3280)           // Declaration hides member.
+//#pragma warning(disable:3280)         // Declaration hides member.
 //#pragma warning(disable:981)			// Operands are evaluated in unspecified order.
 //#pragma warning(disable:444)			// Destructor for base class is not virtual.
 //#pragma warning(disable:2259)			// Non-pointer conversion from type to smaller type.
 //#pragma warning(disable:1786)			// Winsock function is deprecated.
+#pragma warning (disable:4138)          // '*/' found outside of comment.
