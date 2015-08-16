@@ -30,5 +30,8 @@
     <ClInclude Include="Source\Interfaces\IService.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Network\NTServerManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -138,6 +138,7 @@
     <ClInclude Include="Source\Defines.h" />
     <ClInclude Include="Source\Interfaces\IServer.h" />
     <ClInclude Include="Source\Interfaces\IService.h" />
+    <ClInclude Include="Source\Network\NTServerManager.h" />
     <ClInclude Include="Source\Utility\Cryptography.h" />
     <ClInclude Include="Source\Warnings.h" />
   </ItemGroup>
