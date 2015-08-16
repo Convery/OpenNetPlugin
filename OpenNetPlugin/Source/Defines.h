@@ -18,7 +18,7 @@
 #ifdef _DEBUG
 #define SafeString(string) string
 #define DebugPrint(type, string)
-#define PrintFunction()
+#define PrintFunction() DebugPrint(3, __func__)
 #define HardDebugBreak() MessageBoxA(0, __FUNCTION__, 0, 0)
 #else
 #define SafeString(string) ""
@@ -28,9 +28,9 @@
 #endif
 
 // Type specific debug info.
-#define nDebugPrint(string) DebugPrint(1, string)
-#define fDebugPrint(string) DebugPrint(2, string)
-#define pDebugPrint(string) DebugPrint(3, string)
-#define mDebugPrint(string) DebugPrint(4, string)
+#define nDebugPrint(string, ...) DebugPrint(1, string)
+#define fDebugPrint(string, ...) DebugPrint(2, string)
+#define pDebugPrint(string, ...) DebugPrint(3, string)
+#define mDebugPrint(string, ...) DebugPrint(4, string)
 
 
