@@ -9,13 +9,16 @@
 
 #pragma once
 #include "..\Utility\Cryptography.h"
-#include <stdint.h>
+#include "..\STDInclude.h"
 #include <cstring>
 
 // The base interface for local servers.
 class IServer
 {
 protected:
+    // Reserved storage.
+    uint8_t LocalStorage[16];
+
     // Represents an IP on the internal network.
     uint32_t InternalAddress4;
     uint64_t InternalAddress6;
