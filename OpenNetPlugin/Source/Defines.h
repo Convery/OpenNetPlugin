@@ -16,15 +16,21 @@
 
 // Debug features.
 #ifdef _DEBUG
-#define SafeString(x) x
-#define DebugPrint(x) x
+#define SafeString(string) string
+#define DebugPrint(type, string)
 #define PrintFunction()
 #define HardDebugBreak() MessageBoxA(0, __FUNCTION__, 0, 0)
 #else
-#define SafeString(x) ""
-#define DebugPrint(x)
+#define SafeString(string) ""
+#define DebugPrint(type, string)
 #define PrintFunction()
 #define HardDebugBreak()
 #endif
+
+// Type specific debug info.
+#define nDebugPrint(string) DebugPrint(1, string)
+#define fDebugPrint(string) DebugPrint(2, string)
+#define pDebugPrint(string) DebugPrint(3, string)
+#define mDebugPrint(string) DebugPrint(4, string)
 
 
