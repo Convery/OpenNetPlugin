@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <stdint.h>
+
 #include "Warnings.h"
 #include "Defines.h"
 
