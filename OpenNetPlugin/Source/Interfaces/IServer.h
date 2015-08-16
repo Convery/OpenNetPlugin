@@ -22,7 +22,7 @@ protected:
     const char *Hostname;
 
     // Basic server management.
-    virtual void    Platform_Select(int32_t *SocketCount, void **SocketsRead, void **SocketsWrite) = 0;
+    virtual void    Platform_Select(int32_t *ReadCount, void **SocketsRead, int32_t *WriteCount, void **SocketsWrite) = 0;
     virtual int32_t Platform_Receive(uint8_t *Buffer, int32_t Length, void *Socket = nullptr) = 0;
     virtual int32_t Platform_Send(uint8_t *Buffer, int32_t Length, void *Socket = nullptr) = 0;
     virtual int32_t Platform_Connect(void *Socket, void *NameStruct, int32_t NameLength) = 0;
