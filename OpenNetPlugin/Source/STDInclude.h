@@ -14,3 +14,4 @@
 #include "Defines.h"
 
 #include "Utility\Cryptography.h"
+#include "Utility\Hooking.h"

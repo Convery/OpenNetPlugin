@@ -7,7 +7,7 @@
 */
 
 #pragma once
-#include <stdint.h>
+#include "..\STDInclude.h"
 
 // Fast, not secure hashing.
 inline uint32_t FNV1_32Hash(void *Data, uint32_t Length)

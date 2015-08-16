@@ -141,6 +141,7 @@
     <ClInclude Include="Source\Network\NTServerManager.h" />
     <ClInclude Include="Source\STDInclude.h" />
     <ClInclude Include="Source\Utility\Cryptography.h" />
+    <ClInclude Include="Source\Utility\Hooking.h" />
     <ClInclude Include="Source\Warnings.h" />
   </ItemGroup>
   <ItemGroup>
