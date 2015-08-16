@@ -41,3 +41,8 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+*.suo
+*.sdf
+OpenNetPlugin.opensdf
+*.log
+OpenNetPlugin/Bin/Temporary/x64/Debug/OpenNetPlugin.tlog/OpenNetPlugin.lastbuildstate
