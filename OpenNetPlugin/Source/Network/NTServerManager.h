@@ -10,7 +10,7 @@
 #pragma once
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
-#include <stdint.h>
+#include "..\STDInclude.h"
 #include <WinSock2.h>
 #include <unordered_map>
 #pragma comment(lib, "ws2_32.lib")	
@@ -44,7 +44,7 @@ class NTServerManager
     static int32_t __stdcall    NT_Select(int32_t fdsCount, fd_set *Readfds, fd_set *Writefds, fd_set *Exceptfds, const timeval *Timeout);
     static int32_t __stdcall    NT_Send(void *Socket, const char *Buffer, int32_t BufferLength, int32_t Flags);
     static int32_t __stdcall    NT_SendTo(void *Socket, const char *Buffer, int32_t BufferLength, int32_t Flags, const sockaddr *Peer, int32_t PeerLength);
-    static int32_t __stdcall    NT_SetSockOpt(void *Socket, int32_t Level, int32_t OptionName, const char *OptionValue, int32_t *OptionLength);
+    static int32_t __stdcall    NT_SetSockOpt(void *Socket, int32_t Level, int32_t OptionName, const char *OptionValue, int32_t OptionLength);
     static hostent *__stdcall   NT_GetHostByName(const char *Hostname);
 
     // New winsock replacement methods.
