@@ -206,7 +206,8 @@ int32_t NTServerManager::NT_ReceiveFrom(void *Socket, char *Buffer, int32_t Buff
     // Local server.
     if (Server != nullptr)
     {
-        // TODO: Hack the Peer into the server struct.
+        // LocalStorage is filled in the sendto method.
+        memcpy(Peer, Server->LocalStorage, sizeof(sockaddr));
 
         // If we are blocking, block until we have data to send.
         if (Host_SocketBlockStatus[Socket])
@@ -280,7 +281,86 @@ int32_t NTServerManager::NT_Select(int32_t fdsCount, fd_set *Readfds, fd_set *Wr
     nDebugPrint("%s returned %u results", __func__, SocketCount);
     return SocketCount;
 }
-int32_t NTServerManager::NT_Send(void *Socket, const char *Buffer, int32_t BufferLength, int32_t Flags);
-int32_t NTServerManager::NT_SendTo(void *Socket, const char *Buffer, int32_t BufferLength, int32_t Flags, const sockaddr *Peer, int32_t PeerLength);
-int32_t NTServerManager::NT_SetSockOpt(void *Socket, int32_t Level, int32_t OptionName, const char *OptionValue, int32_t *OptionLength);
-hostent *NTServerManager::NT_GetHostByName(const char *Hostname);
+int32_t NTServerManager::NT_Send(void *Socket, const char *Buffer, int32_t BufferLength, int32_t Flags)
+{
+    IServer *Server = FindServerBySocket(Socket);
+
+    if (Server != nullptr)
+    {
+        nDebugPrint("%s to \"%s\", %i bytes.", __func__, Server->Hostname, BufferLength);
+        return Server->Platform_Send((uint8_t *)Buffer, BufferLength, Socket);
+    }
+    else
+    {
+        nDebugPrint("%s via %llu, %i bytes.", __func__, Socket, BufferLength);
+        return send((SOCKET)Socket, Buffer, BufferLength, Flags);
+    }
+}
+int32_t NTServerManager::NT_SendTo(void *Socket, const char *Buffer, int32_t BufferLength, int32_t Flags, const sockaddr *Peer, int32_t PeerLength)
+{
+    IServer *Server = FindServerBySocket(Socket);
+    int32_t BytesSent = -1;
+
+    if (Server != nullptr)
+    {
+        // Emplace the server.
+        Host_ConnectedSockets[Socket] = Server;
+        memcpy(Server->LocalStorage, Peer, sizeof(sockaddr));
+
+        nDebugPrint("%s to \"%s\", %i bytes.", __func__, Server->Hostname, BufferLength);
+        return Server->Platform_Send((uint8_t *)Buffer, BufferLength, Socket);
+    }
+    else
+    {
+        nDebugPrint("%s via %llu, %i bytes.", __func__, Socket, BufferLength);
+        return sendto((SOCKET)Socket, Buffer, BufferLength, Flags, Peer, PeerLength);
+    }
+}
+int32_t NTServerManager::NT_SetSockOpt(void *Socket, int32_t Level, int32_t OptionName, const char *OptionValue, int32_t OptionLength)
+{
+    return setsockopt((SOCKET)Socket, Level, OptionName, OptionValue, OptionLength);
+}
+hostent *NTServerManager::NT_GetHostByName(const char *Hostname)
+{
+    IServer *Server = FindServerByHost(Hostname);
+    auto Iterator = Host_ProxyAddresses.find(0x00000000000000FD | static_cast<uint64_t>(FNV1_32Hash((void *)Hostname, (uint32_t)strlen(Hostname))) << 8);
+
+    if (Server != nullptr || Iterator != Host_ProxyAddresses.end())
+    {
+        static in_addr LocalAddress;
+        if (Server != nullptr)
+        {
+            LocalAddress.s_addr = Server->InternalAddress4;
+        }
+        else
+        {
+            LocalAddress.s_addr = Iterator->second;
+        }
+
+        static in_addr *LocalSocketAddrList[2];
+        LocalSocketAddrList[0] = &LocalAddress;
+        LocalSocketAddrList[1] = nullptr;
+
+        static hostent LocalHost;
+        LocalHost.h_name = const_cast<char *>(Hostname);
+        LocalHost.h_aliases = NULL;
+        LocalHost.h_addrtype = AF_INET;
+        LocalHost.h_length = sizeof(in_addr);
+        LocalHost.h_addr_list = (char **)LocalSocketAddrList;
+
+        nDebugPrint("%s: \"%s\" -> %s", __func__, Hostname, inet_ntoa(*(in_addr*)LocalHost.h_addr_list[0]));
+        return &LocalHost;
+    }
+    else
+    {
+        static hostent *ResolvedHost = nullptr;
+        ResolvedHost = gethostbyname(Hostname);
+
+        if (ResolvedHost != nullptr)
+        {
+            nDebugPrint("%s: \"%s\" -> %s", __func__, Hostname, inet_ntoa(*(in_addr*)ResolvedHost_addr_list[0]));
+        }
+
+        return ResolvedHost;
+    }
+}
