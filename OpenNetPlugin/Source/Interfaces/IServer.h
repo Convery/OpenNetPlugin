@@ -48,12 +48,12 @@ public:
 };
 
 // Create unique and invalid addresses.
-inline IServer::IServer()
+inline IServer::IServer() noexcept
 {
     InternalAddress4 = 0x0000000A;
     InternalAddress6 = 0x00000000000000FD;
 }
-inline IServer::IServer(const char *Hostname)
+inline IServer::IServer(const char *Hostname) noexcept
 {
     InternalAddress4 = 0x0000000A | FNV1_32Hash((void *)Hostname, (uint32_t)strlen(Hostname)) << 8;
     InternalAddress6 = 0x00000000000000FD | static_cast<uint64_t>(FNV1_32Hash((void *)Hostname, (uint32_t)strlen(Hostname))) << 8;
