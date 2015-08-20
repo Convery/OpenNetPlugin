@@ -12,6 +12,7 @@
 
 #include "Warnings.h"
 #include "Defines.h"
+#include "Externs.h"
 
 #include "Utility\Cryptography.h"
 #include "Utility\Hooking.h"

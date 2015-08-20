@@ -136,6 +136,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Source\Defines.h" />
+    <ClInclude Include="Source\Externs.h" />
     <ClInclude Include="Source\Interfaces\IServer.h" />
     <ClInclude Include="Source\Interfaces\IService.h" />
     <ClInclude Include="Source\Network\NTServerManager.h" />

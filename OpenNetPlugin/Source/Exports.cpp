@@ -26,7 +26,11 @@ extern "C"
     };
     __declspec(dllexport) int32_t __cdecl AuthorInfo()
     {
+#ifdef _WIN64
         return 0;
+#else
+        return (int32_t)Global::AuthorSite;
+#endif
     };
     __declspec(dllexport) int32_t __cdecl ExtendedInfo()
     {
@@ -69,50 +73,65 @@ extern "C"
     // Printed information.
     __declspec(dllexport) const char *__stdcall Info_PluginName(void)
     {
-        return "OpenNet";
+        return Global::PluginName;
     };
     __declspec(dllexport) const char *__stdcall Info_AuthorName(void)
     {
-        return "Convery";
+        return Global::AuthorName;
     };
     __declspec(dllexport) const char *__stdcall Info_AuthorSite(void)
     {
-        return "https://github.com/Convery";
+        return Global::AuthorSite;
     };
 
     // Environmental settings.
     __declspec(dllexport) uint32_t __stdcall Env_DependencyCount(void)
     {
         // Opennet cares not for other plugins.
-        return 0;
+        return min(UINT32_MAX, Global::Dependencies.size());
     };
-    __declspec(dllexport) const char *__stdcall Env_DependencyNameByIndex(uint32_t Index)
+    __declspec(dllexport) const char *__stdcall Env_DependencyNameByIndex(int32_t Index)
     {
-        switch (Index)
-        {
-        default:
-            return "Invalid Dep";
-        }
+        if (Index >= Global::Dependencies.size() && Index >= 0)
+            return "Out of bounds";
+        else
+            return Global::Dependencies[Index];
     };
     __declspec(dllexport) const char *__stdcall Env_GetValue(const char *Key)
     {
-        return "";
+        try
+        {
+            auto KeyIterator = Global::EnvKeyVal.find(Key);
+            
+            // Return based on the index.
+            if (KeyIterator == Global::EnvKeyVal.end())
+                return KeyIterator->second;
+            else
+                return "Key not found";
+        }
+        catch (...)
+        {
+            return "Threw an exception";
+        }
     };
     __declspec(dllexport) void __stdcall Env_SetValue(const char *Key, const char *Value)
     {
-
+        Global::EnvKeyVal[Key] = Value;
     };  
     __declspec(dllexport) void __stdcall Env_SetDebugOutputStream(void *StreamHandle)
     {
+        Global::StreamHandle = StreamHandle;
 
+        // TODO:
+        // When a console class hasbeen added, update its handle.
     };
 
     // Communication between plugins.
-    __declspec(dllexport) void __stdcall Com_ProcessMessage(char *Caller, uint8_t *Message, uint32_t Length)
+    __declspec(dllexport) void __stdcall Com_ProcessMessage(const char *Caller, uint8_t *Message, uint32_t Length)
     {
 
     };
-    __declspec(dllexport) void __stdcall Com_RegisterCallback(char *Caller, char *String, void *Callback)
+    __declspec(dllexport) void __stdcall Com_RegisterCallback(const char *Caller, char *String, void *Callback)
     {
 
     };
