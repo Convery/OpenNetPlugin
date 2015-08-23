@@ -143,11 +143,13 @@
     <ClInclude Include="Source\STDInclude.h" />
     <ClInclude Include="Source\Utility\Cryptography.h" />
     <ClInclude Include="Source\Utility\Hooking.h" />
+    <ClInclude Include="Source\Utility\lConsole.h" />
     <ClInclude Include="Source\Warnings.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Exports.cpp" />
     <ClCompile Include="Source\Network\NTServerManager.cpp" />
+    <ClCompile Include="Source\Utility\lConsole.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -88,7 +88,7 @@ extern "C"
     __declspec(dllexport) uint32_t __stdcall Env_DependencyCount(void)
     {
         // Opennet cares not for other plugins.
-        return min(UINT32_MAX, Global::Dependencies.size());
+        return (uint32_t)min(UINT32_MAX, Global::Dependencies.size());
     };
     __declspec(dllexport) const char *__stdcall Env_DependencyNameByIndex(int32_t Index)
     {
