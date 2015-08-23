@@ -424,13 +424,13 @@ void NTServerManager::PacketProcessingThread()
             }
             catch (const std::exception &Exception)
             {
-                DebugPrint(0, "\n\n\n==========================================================");
-                DebugPrint(0, "OpenNet error");
-                DebugPrint(0, Exception.what());
-                DebugPrint(0, "\n=============================================\n");
+                DebugPrint("\n\n\n==========================================================");
+                DebugPrint("OpenNet error");
+                DebugPrint(Exception.what());
+                DebugPrint("\n=============================================\n");
 
-                DebugPrint(0, "One of the local socket processes threw an unhandled exception.");
-                DebugPrint(0, "The plugin may still work in offline mode but should be restarted.");
+                DebugPrint("One of the local socket processes threw an unhandled exception.");
+                DebugPrint("The plugin may still work in offline mode but should be restarted.");
 
                 HANDLE hFile = INVALID_HANDLE_VALUE;
                 hFile = CreateFileA("OpenNetCrash.dmp", GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
