@@ -380,11 +380,11 @@ void lConsole::Int_UpdateThread()
             {
                 if (strstr(ScrollbackLines[i].String, Progressbars[c].ProgressToken))
                 {
-                    static char ProgressBuffer[256];
-                    memset(ProgressBuffer, 0, 256);
+                    static char ProgressBuffer[257];
+                    memset(ProgressBuffer, 0, 257);
 
                     // Create the buffer.
-                    for (int32_t k = 0; k < strlen(ScrollbackLines[i].String) - 1; k++)
+                    for (int32_t k = 0; k < (int32_t)min(INT32_MAX, strlen(ScrollbackLines[i].String)) - 1; k++)
                     {
                         // Copy all the characters up until the token.
                         if (ScrollbackLines[i].String[k + 0] == Progressbars[c].ProgressToken[0] &&

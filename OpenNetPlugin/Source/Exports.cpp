@@ -12,6 +12,9 @@
 #define USING_REDACTED_API_2
 #define USING_REDACTED_API_3
 
+// Global statics.
+static lConsole PluginConsole;
+
 extern "C"
 {
     // 2014 Redacted API.
@@ -60,7 +63,7 @@ extern "C"
     __declspec(dllexport) bool __stdcall Plugin_PreGameInitialization(void)
     {
         // Initialize the console so we can log errors.
-
+        PluginConsole.Initialize(SafeString("Openet.log"));
 
         return false;
     };
@@ -94,7 +97,7 @@ extern "C"
     };
     __declspec(dllexport) const char *__stdcall Env_DependencyNameByIndex(int32_t Index)
     {
-        if (Index >= Global::Dependencies.size() && Index >= 0)
+        if (Index >= (int32_t)min(INT32_MAX, Global::Dependencies.size()) && Index >= 0)
             return "Out of bounds";
         else
             return Global::Dependencies[Index];
