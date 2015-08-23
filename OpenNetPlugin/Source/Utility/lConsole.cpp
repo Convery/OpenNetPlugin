@@ -11,6 +11,7 @@
 #include "lConsole.h"
 #include <Windows.h>
 #include <thread>
+#include <mutex>
 
 // Internal structs.
 struct lLine
@@ -30,6 +31,7 @@ struct lProgressBar
 };
 
 // Helpers.
+static std::mutex ThreadSafe;
 const char *GetProgress(uint32_t ProgressType, uint32_t CurrentProgress, uint32_t TotalProgress)
 {
     static char InternalBuffer[12]{ "CakeIsLife|" };
@@ -107,13 +109,14 @@ bool lConsole::Initialize(void *FileHandle, void *Stream, uint32_t ScreenbufferS
         freopen("CONOUT$", "w", (FILE *)Stream);
 
         // Start the update thread.
-        if (UpdateThread.joinable())
+        if (!UpdateThread.joinable())
         {
             UpdateThread = std::thread(&lConsole::Int_UpdateThread, this);
         }
     }
 
     // Fill our properties.
+    ThreadSafe.lock();
     this->FileHandle = FileHandle;
     this->StreamHandle = Stream;
     this->ShouldPrintScrollback = ScreenbufferSize != 0;
@@ -122,6 +125,7 @@ bool lConsole::Initialize(void *FileHandle, void *Stream, uint32_t ScreenbufferS
     this->ScrollbackLineCount = ScreenbufferSize;
     this->ScrollbackLines = new lLine[this->ScrollbackLineCount]();
     this->ProgressbarCount = 0;
+    ThreadSafe.unlock();
 
     return true;
 }
@@ -134,13 +138,17 @@ bool lConsole::Initialize(const char *Filename, void *Stream, uint32_t Screenbuf
 // Console modification.
 void lConsole::ChangeOutputstream(void *NewStream)
 {
+    ThreadSafe.lock();
     this->StreamHandle = NewStream;
+    ThreadSafe.unlock();
 }
 void lConsole::ChangeOutputfile(void *NewFilehandle, bool CloseCurrentHandle)
 {
+    ThreadSafe.lock();
     if (CloseCurrentHandle)
         fclose((FILE *)this->FileHandle);
     this->FileHandle = NewFilehandle;
+    ThreadSafe.unlock();
 }
 void lConsole::ChangeWindowname(const char *NewName)
 {
@@ -164,7 +172,9 @@ void lConsole::ChangeWindowsize(uint16_t Width, uint16_t Height)
 }
 void lConsole::ToggleScrollbackPrinting()
 {
+    ThreadSafe.lock();
     this->ShouldPrintScrollback = !this->ShouldPrintScrollback;
+    ThreadSafe.unlock();
 }
 
 // Enqueue data.
@@ -174,6 +184,7 @@ void lConsole::PrintStringRaw(lLine *String)
     static uint32_t LastIndex = 0;
 
     // Check if the array is full.
+    ThreadSafe.lock();
     if (!ArrayIsFull)
     {
         for (uint32_t i = 0; i < ScrollbackLineCount; ++i)
@@ -209,10 +220,18 @@ void lConsole::PrintStringRaw(lLine *String)
     // Copy the new line into the array.
     ScrollbackLines[LastIndex].RGBA = String->RGBA;
     memcpy(ScrollbackLines[LastIndex].String, String->String, 256);
+    ThreadSafe.unlock();
 
     // Print to the stream instantly.
-    if(FileHandle != nullptr)
-        fprintf((FILE *)FileHandle, String->String);
+    if (FileHandle != nullptr)
+    {
+        // Disable buffering for the file in the event of a crash.
+        setvbuf((FILE *)FileHandle, NULL, _IONBF, NULL);
+        fwrite(String->String, 1, strlen(String->String), (FILE *)FileHandle);
+        fwrite("\n\0", 1, 1, (FILE *)FileHandle);
+        fflush((FILE *)FileHandle);
+    }
+        
 }
 void lConsole::PrintStringRaw(const char *String)
 {
@@ -255,6 +274,7 @@ uint32_t lConsole::PrintProgress(uint32_t Start, uint32_t End, const char *Strin
     srand(RandSeed++);
 
     // Initialize our bar.
+    ThreadSafe.lock();
     TempProgress.StartValue = Start;
     TempProgress.CurrentValue = Start;
     TempProgress.EndValue = End;
@@ -279,10 +299,13 @@ uint32_t lConsole::PrintProgress(uint32_t Start, uint32_t End, const char *Strin
     delete[] Progressbars;
     Progressbars = StaticProgressBuffer;
 
-    // Print the string.
+    // Format the string.
     static char InternalBuffer[256];
     memset(InternalBuffer, 0, 256);
     sprintf_s(InternalBuffer, 256, "%s | %s", TempProgress.ProgressToken, TempProgress.PrependString.String);
+
+    // Print the string.
+    ThreadSafe.unlock();
     PrintStringRaw(InternalBuffer);
 
     return TempProgress.ProgressBarID;
@@ -291,6 +314,7 @@ uint32_t lConsole::PrintProgress(uint32_t Start, uint32_t End, const char *Strin
 void lConsole::UpdateProgress(uint32_t Id, uint32_t NewValue)
 {
     // Iterate through the bars until the Id is found.
+    ThreadSafe.lock();
     for (uint32_t i = 0; i < ProgressbarCount; ++i)
     {
         if (Progressbars[i].ProgressBarID == Id)
@@ -301,10 +325,12 @@ void lConsole::UpdateProgress(uint32_t Id, uint32_t NewValue)
                 EndProgress(Id);
         }
     }
+    ThreadSafe.unlock();
 }
 void lConsole::EndProgress(uint32_t Id)
 {
     // Iterate through the bars until the Id is found.
+    ThreadSafe.lock();
     for (uint32_t i = 0; i < ProgressbarCount; i++)
     {
         if (Progressbars[i].ProgressBarID == Id)
@@ -316,6 +342,7 @@ void lConsole::EndProgress(uint32_t Id)
             Progressbars[i].ProgressToken[0] = '\0';
         }
     }
+    ThreadSafe.unlock();
 }
 
 // Info for other plugins.
@@ -331,7 +358,7 @@ void *lConsole::ShareOutputstream()
 // Internal thread for updating the console.
 void lConsole::Int_UpdateThread()
 {
-    static std::chrono::milliseconds UpdateDelay(100);
+    static std::chrono::milliseconds UpdateDelay(500);
     while (true)
     {
         // Delay so we don't waste time updating.
@@ -370,6 +397,7 @@ void lConsole::Int_UpdateThread()
         GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &OldTextColor);
 
         // For each line in the scrollback.
+        ThreadSafe.lock();
         for (uint32_t i = 0; i < ScrollbackLineCount; ++i)
         {
             // Set the output strings color.
@@ -417,6 +445,7 @@ void lConsole::Int_UpdateThread()
 
         // Reset the color.
         SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), OldTextColor.wAttributes);
+        ThreadSafe.unlock();
     }
 }
 

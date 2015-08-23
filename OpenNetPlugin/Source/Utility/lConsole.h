@@ -31,8 +31,8 @@ class lConsole
 
 public:
     // Initialization of the console.
-    bool Initialize(void *FileHandle = nullptr, void *Stream = stdout, uint32_t ScreenbufferSize = 25);
-    bool Initialize(const char *Filename = nullptr, void *Stream = stdout, uint32_t ScreenbufferSize = 25);
+    bool Initialize(void *FileHandle = nullptr, void *Stream = stdout, uint32_t ScreenbufferSize = 30);
+    bool Initialize(const char *Filename = nullptr, void *Stream = stdout, uint32_t ScreenbufferSize = 30);
 
     // Console modification.
     void ChangeOutputstream(void *NewStream);
