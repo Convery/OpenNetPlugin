@@ -8,6 +8,9 @@
 
 #pragma once
 
+// Disable warnings.
+#define _CRT_SECURE_NO_WARNINGS
+
 // Debug information.
 #define DEBUG_NET       // Log information about the network.
 #define DEBUG_FS        // Log information about the filesystem.
