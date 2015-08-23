@@ -146,6 +146,10 @@ void lConsole::PrintStringRaw(lLine *String)
     // Copy the new line into the array.
     ScrollbackLines[LastIndex].RGBA = String->RGBA;
     memcpy(ScrollbackLines[LastIndex].String, String->String, 256);
+
+    // Print to the stream instantly.
+    if(FileHandle != nullptr)
+        fprintf((FILE *)&FileHandle, String->String);
 }
 void lConsole::PrintStringRaw(const char *String)
 {
@@ -196,7 +200,7 @@ uint32_t lConsole::PrintProgress(uint32_t Start, uint32_t End, const char *Strin
     strcpy_s(TempProgress.ProgressToken, 10, "29v7jehf");
     strcpy_s(TempProgress.PrependString.String, 256, String);
     TempProgress.PrependString.RGBA = 0xffffff00;
-    
+
     // Allocate the new buffer.
     static lProgressBar *StaticProgressBuffer = nullptr;
     if (StaticProgressBuffer != nullptr)
@@ -207,10 +211,16 @@ uint32_t lConsole::PrintProgress(uint32_t Start, uint32_t End, const char *Strin
     for (uint32_t i = 0; i < ProgressbarCount; i++)
         StaticProgressBuffer[i] = Progressbars[i];
     StaticProgressBuffer[ProgressbarCount++] = TempProgress;
-    
+
     // Delete the old buffer and replace with the new one.
     delete[] Progressbars;
     Progressbars = StaticProgressBuffer;
+
+    // Print the string.
+    static char InternalBuffer[256];
+    memset(InternalBuffer, 0, 256);
+    sprintf_s(InternalBuffer, 256, "%s | %s", TempProgress.ProgressToken, TempProgress.PrependString.String);
+    PrintStringRaw(InternalBuffer);
 
     return TempProgress.ProgressBarID;
 }
@@ -257,6 +267,16 @@ void *lConsole::ShareOutputstream()
 
 // Internal thread for updating the console.
 void lConsole::Int_UpdateThread()
+{
+
+}
+
+// Methods not to call from usercode.
+lConsole::lConsole()
+{
+
+}
+lConsole::~lConsole()
 {
 
 }

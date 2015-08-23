@@ -59,6 +59,9 @@ extern "C"
     // Plugin state.
     __declspec(dllexport) bool __stdcall Plugin_PreGameInitialization(void)
     {
+        // Initialize the console so we can log errors.
+
+
         return false;
     };
     __declspec(dllexport) bool __stdcall Plugin_PostGameInitialization(void)
@@ -87,7 +90,6 @@ extern "C"
     // Environmental settings.
     __declspec(dllexport) uint32_t __stdcall Env_DependencyCount(void)
     {
-        // Opennet cares not for other plugins.
         return (uint32_t)min(UINT32_MAX, Global::Dependencies.size());
     };
     __declspec(dllexport) const char *__stdcall Env_DependencyNameByIndex(int32_t Index)
