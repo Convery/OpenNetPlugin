@@ -112,6 +112,7 @@ bool lConsole::Initialize(void *FileHandle, void *Stream, uint32_t ScreenbufferS
         if (!UpdateThread.joinable())
         {
             UpdateThread = std::thread(&lConsole::Int_UpdateThread, this);
+            UpdateThread.detach();
         }
     }
 

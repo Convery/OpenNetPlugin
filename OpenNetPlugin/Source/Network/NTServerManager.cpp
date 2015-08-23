@@ -402,6 +402,7 @@ bool NTServerManager::StartProcessingPackets()
     if (!PacketThread.joinable())
     {
         PacketThread = std::thread(PacketProcessingThread);
+        PacketThread.detach();
         return true;
     }
 

@@ -22,7 +22,7 @@
 #define HardDebugBreak() MessageBoxA(0, __FUNCTION__, 0, 0)
 #else
 #define SafeString(string) ""
-#define DebugPrint(type, string)
+#define DebugPrint(string)
 #define PrintFunction()
 #define HardDebugBreak()
 #endif
