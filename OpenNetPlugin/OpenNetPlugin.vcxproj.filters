@@ -45,6 +45,9 @@
     <ClInclude Include="Source\Utility\lConsole.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\Utility\VariadicArg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Network\NTServerManager.cpp">

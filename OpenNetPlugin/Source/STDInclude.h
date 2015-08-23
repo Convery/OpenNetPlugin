@@ -17,3 +17,4 @@
 #include "Utility\Cryptography.h"
 #include "Utility\Hooking.h"
 #include "Utility\lConsole.h"
+#include "Utility\VariadicArg.h"
