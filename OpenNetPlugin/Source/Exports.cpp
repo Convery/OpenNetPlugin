@@ -13,8 +13,11 @@
 #define USING_REDACTED_API_2
 #define USING_REDACTED_API_3
 
-// Global statics.
-static lConsole PluginConsole;
+// Global variables.
+std::vector<const char *> Global::Dependencies = {};
+std::unordered_map<const char */*Key*/, const char */*Value*/> Global::EnvKeyVal;
+std::unordered_map < const char */*Statement*/, void */*Callback*/> Global::ComCallbacks;
+lConsole Global::PluginConsole;
 
 extern "C"
 {
@@ -23,7 +26,7 @@ extern "C"
     __declspec(dllexport) int32_t __cdecl PreInit()
     {
         // Initialize the console so we can log errors.
-        PluginConsole.Initialize(SafeString("Openet.log"));
+        Global::PluginConsole.Initialize(SafeString("Openet.log"));
 
         // Initialize the platform logic.
 #ifdef _WIN32
@@ -74,7 +77,7 @@ extern "C"
     __declspec(dllexport) bool __stdcall Plugin_PreGameInitialization(void)
     {
         // Initialize the console so we can log errors.
-        PluginConsole.Initialize(SafeString("Openet.log"));
+        Global::PluginConsole.Initialize(SafeString("Openet.log"));
 
         // Initialize the platform logic.
 #ifdef _WIN32
@@ -143,10 +146,7 @@ extern "C"
     };  
     __declspec(dllexport) void __stdcall Env_SetDebugOutputStream(void *StreamHandle)
     {
-        Global::StreamHandle = StreamHandle;
-
-        // TODO:
-        // When a console class hasbeen added, update its handle.
+        Global::PluginConsole.ChangeOutputstream(StreamHandle);
     };
 
     // Communication between plugins.

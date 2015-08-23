@@ -9,6 +9,7 @@
 #pragma once
 #include <vector>
 #include <unordered_map>
+#include "Utility\lConsole.h"
 
 namespace Global
 {
@@ -18,10 +19,10 @@ namespace Global
     static const char *AuthorSite = "https://github.com/Convery";
 
     // Environmental information.
-    static std::vector<const char *> Dependencies = {};
-    static std::unordered_map<const char */*Key*/, const char */*Value*/> EnvKeyVal;
-    static void *StreamHandle;
+    extern std::vector<const char *> Dependencies;
+    extern std::unordered_map<const char */*Key*/, const char */*Value*/> EnvKeyVal;
+    extern lConsole PluginConsole;
 
     // Plugin communication.
-    static std::unordered_map < const char */*Statement*/, void */*Callback*/> ComCallbacks;
+    extern std::unordered_map < const char */*Statement*/, void */*Callback*/> ComCallbacks;
 }
