@@ -1,8 +1,9 @@
 /*
-    This is a lovely little console for the plugins.
-    Simple, clean and to the point.
-    Author:  Convery
-    License: MIT
+    Initial author: (https://github.com/)Convery
+    License: LGPL 3.0
+    Started: 2015-08-23
+    Notes:
+        A console that works across plugins.
 */
 
 #define _CRT_SECURE_NO_WARNINGS
