@@ -95,8 +95,7 @@ int32_t NTServerManager::NT_Connect(void *Socket, const sockaddr *Address, int32
             Host_ConnectedSockets[Socket] = Server;
             if (!Host_SocketBlockStatus[Socket])
             {
-                SetLastError(WSAEWOULDBLOCK);
-                return -1;
+                return 0;
             }
         }
 
