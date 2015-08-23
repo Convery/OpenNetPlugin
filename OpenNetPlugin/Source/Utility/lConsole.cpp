@@ -28,6 +28,68 @@ struct lProgressBar
     bool Interrupted;
 };
 
+// Helpers.
+const char *GetProgress(uint32_t ProgressType, uint32_t CurrentProgress, uint32_t TotalProgress)
+{
+    static char InternalBuffer[12]{ "CakeIsLife|" };
+    double Percentage = float(CurrentProgress) / float(TotalProgress);
+    uint8_t Characters = (uint8_t)((Percentage * 100 + 5) / 10) + 1;
+
+    // Clear the previous result.
+    memset(InternalBuffer, 0, 10);
+
+    // Create a string based on the type.
+    switch (ProgressType)
+    {
+    case 0:
+        for (uint8_t i = 0; i < Characters; i++)
+            InternalBuffer[i] = '#';
+        break;
+    case 1:
+        for (uint8_t i = 0; i < Characters; i++)
+            InternalBuffer[i] = '*';
+        break;
+    case 2:
+        for (uint8_t i = 0; i < Characters; i++)
+            InternalBuffer[i] = '-';
+        break;
+    case 3:
+        for (uint8_t i = 0; i < Characters; i++)
+            InternalBuffer[i] = '>';
+        break;
+
+    case 4:
+        for (uint8_t i = 0; i < Characters - 1; i++)
+            InternalBuffer[i] = '-';
+        InternalBuffer[Characters - 1] = '>';
+        break;
+
+    case 5:
+        sprintf(InternalBuffer, "%u%s", uint32_t(Percentage * 100), "%%");
+        break;
+    }
+
+    return InternalBuffer;
+}
+uint32_t CompatibleRGBA(uint32_t RGBA)
+{
+    uint32_t Result = 0;
+
+#ifdef _WIN32
+    if (((uint8_t *)&RGBA)[1])
+        Result |= (1 << 0); // Foreground blue.
+    if (((uint8_t *)&RGBA)[2])
+        Result |= (1 << 1); // Foreground green.
+    if (((uint8_t *)&RGBA)[3])
+        Result |= (1 << 2); // Foreground red.
+    if (((uint8_t *)&RGBA)[0] > 128)
+        Result |= (1 << 3); // Foreground intensity.
+#else
+#endif
+
+    return Result;
+}
+
 // Initialization of the console.
 static std::thread UpdateThread;
 bool lConsole::Initialize(void *FileHandle, void *Stream, uint32_t ScreenbufferSize)
@@ -41,7 +103,7 @@ bool lConsole::Initialize(void *FileHandle, void *Stream, uint32_t ScreenbufferS
         AttachConsole(GetCurrentProcessId());
 
         // Set the standard streams to use the console.
-        freopen("CON", "w", stdout);
+        freopen("CONOUT$", "w", (FILE *)&Stream);
 
         // Start the update thread.
         if (UpdateThread.joinable())
@@ -268,7 +330,93 @@ void *lConsole::ShareOutputstream()
 // Internal thread for updating the console.
 void lConsole::Int_UpdateThread()
 {
+    static std::chrono::milliseconds UpdateDelay(100);
+    while (true)
+    {
+        // Delay so we don't waste time updating.
+        std::this_thread::sleep_for(UpdateDelay);
 
+        // If we have a stream handle.
+        if (StreamHandle == nullptr || !ShouldPrintScrollback)
+            continue;
+
+        // Clear the console.
+#ifdef _WIN32
+        // Aparently system("cls") is bad practice as it spawns a shell.
+        COORD topLeft = { 0, 0 };
+        HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+        CONSOLE_SCREEN_BUFFER_INFO screen;
+        DWORD written;
+
+        GetConsoleScreenBufferInfo(console, &screen);
+        FillConsoleOutputCharacterA(
+            console, ' ', screen.dwSize.X * screen.dwSize.Y, topLeft, &written
+            );
+        FillConsoleOutputAttribute(
+            console, FOREGROUND_GREEN | FOREGROUND_RED | FOREGROUND_BLUE,
+            screen.dwSize.X * screen.dwSize.Y, topLeft, &written
+            );
+        SetConsoleCursorPosition(console, topLeft);
+#else
+        // But nix can use ANSI escapecodes.
+        // CSI[2J to clear the console.
+        // CSI[H to reset the cursor.
+        fprintf(stdout, "\x1B[2J\x1B[H");
+#endif
+
+        // Save the old color settings.
+        static CONSOLE_SCREEN_BUFFER_INFO OldTextColor;
+        GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &OldTextColor);
+
+        // For each line in the scrollback.
+        for (uint32_t i = 0; i < ScrollbackLineCount; i++)
+        {
+            // Set the output strings color.
+            SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), CompatibleRGBA(ScrollbackLines[i].RGBA));
+
+            // Search the string for progress bars.
+            for (uint32_t c = 0; c < ProgressbarCount; c++)
+            {
+                if (strstr(ScrollbackLines[i].String, Progressbars[c].ProgressToken))
+                {
+                    static char ProgressBuffer[256];
+                    memset(ProgressBuffer, 0, 256);
+
+                    // Create the buffer.
+                    for (int32_t k = 0; k < strlen(ScrollbackLines[i].String) - 1; k++)
+                    {
+                        // Copy all the characters up until the token.
+                        if (ScrollbackLines[i].String[k + 0] == Progressbars[c].ProgressToken[0] &&
+                            ScrollbackLines[i].String[k + 1] == Progressbars[c].ProgressToken[1])
+                        {
+                            ProgressBuffer[k] = ScrollbackLines[i].String[k];
+                        }
+                        else
+                        {
+                            // Copy the progress bar into the buffer.
+                            // TODO: Use the bar type.
+                            strcpy(&ProgressBuffer[c], GetProgress(0, Progressbars[c].CurrentValue, Progressbars[c].EndValue));
+                            break;
+                        }
+                    }
+
+                    // Print the formated buffer.
+                    printf(ProgressBuffer);
+                    printf("\n");
+                    goto LABEL_PRINT_DONE;
+                }
+            }
+
+            // Print the string since there's no progress bar.
+            printf(ScrollbackLines[i].String);
+            printf("\n");
+
+        LABEL_PRINT_DONE:;
+        }
+
+        // Reset the color.
+        SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), OldTextColor.wAttributes);
+    }
 }
 
 // Methods not to call from usercode.
