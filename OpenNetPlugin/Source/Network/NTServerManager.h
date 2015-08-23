@@ -37,7 +37,7 @@ class NTServerManager
     static int32_t __stdcall    NT_GetPeerName(void *Socket, sockaddr *Address, int32_t *AddressLength);
     static int32_t __stdcall    NT_GetSockName(void *Socket, sockaddr *Address, int32_t *AddressLength);
     static int32_t __stdcall    NT_GetSockOpt(void *Socket, int32_t Level, int32_t OptionName, char *OptionValue, int32_t *OptionLength);
-    static int32_t __stdcall    NT_IOControlSocket(void *Socket, int32_t Command, u_long *ArgumentPointer);
+    static int32_t __stdcall    NT_IOControlSocket(void *Socket, uint32_t Command, u_long *ArgumentPointer);
     static int32_t __stdcall    NT_Listen(void *Socket, int32_t Backlog);
     static int32_t __stdcall    NT_Receive(void *Socket, char *Buffer, int32_t BufferLength, int32_t Flags);
     static int32_t __stdcall    NT_ReceiveFrom(void *Socket, char *Buffer, int32_t BufferLength, int32_t Flags, sockaddr *Peer, int32_t *PeerLength);

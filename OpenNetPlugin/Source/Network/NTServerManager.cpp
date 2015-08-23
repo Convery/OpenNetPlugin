@@ -63,7 +63,7 @@ int32_t NTServerManager::NT_Bind(void *Socket, const sockaddr *Address, int32_t 
 {
     if (AddressLength == sizeof(sockaddr_in))
     {
-        nDebugPrint("%s to address %s:%u on socket %llu", __func__, inet_ntoa(((sockaddr_in *)Address)->sin_addr), ntohs(((sockaddr_in *)Address)->sin_port), Socket);
+        nDebugPrint("%s to address %s:%u on socket %p", __func__, inet_ntoa(((sockaddr_in *)Address)->sin_addr), ntohs(((sockaddr_in *)Address)->sin_port), Socket);
     }
 
     return bind((SOCKET)Socket, Address, AddressLength);
@@ -111,7 +111,7 @@ int32_t NTServerManager::NT_Connect(void *Socket, const sockaddr *Address, int32
             }
         }
 
-        nDebugPrint("%s to address %s:%u on socket %llu", __func__, inet_ntoa(((sockaddr_in *)Address)->sin_addr), ntohs(((sockaddr_in *)Address)->sin_port), Socket);
+        nDebugPrint("%s to address %s:%u on socket %p", __func__, inet_ntoa(((sockaddr_in *)Address)->sin_addr), ntohs(((sockaddr_in *)Address)->sin_port), Socket);
     }
 
     return connect((SOCKET)Socket, Address, AddressLength);
@@ -128,7 +128,7 @@ int32_t NTServerManager::NT_GetSockOpt(void *Socket, int32_t Level, int32_t Opti
 {
     return getsockopt((SOCKET)Socket, Level, OptionName, OptionValue, OptionLength);
 }
-int32_t NTServerManager::NT_IOControlSocket(void *Socket, int32_t Command, u_long *ArgumentPointer)
+int32_t NTServerManager::NT_IOControlSocket(void *Socket, uint32_t Command, u_long *ArgumentPointer)
 {
     const char *ReadableCommand = "UNKNOWN";
 
@@ -148,7 +148,7 @@ int32_t NTServerManager::NT_IOControlSocket(void *Socket, int32_t Command, u_lon
         case SIOCATMARK: ReadableCommand = "SIOCATMARK"; break;
     }
 
-    nDebugPrint("%s on socket %llu with command \"%s\"", __func__, Socket, ReadableCommand);
+    nDebugPrint("%s on socket %p with command \"%s\"", __func__, Socket, ReadableCommand);
     return ioctlsocket((SOCKET)Socket, Command, ArgumentPointer);
 }
 int32_t NTServerManager::NT_Listen(void *Socket, int32_t Backlog)
@@ -194,7 +194,7 @@ int32_t NTServerManager::NT_Receive(void *Socket, char *Buffer, int32_t BufferLe
     BytesReceived = recv((SOCKET)Socket, Buffer, BufferLength, Flags);
     if (BytesReceived != -1)
     {
-        nDebugPrint("%s: %i bytes on socket %llu", __func__, BytesReceived, Socket);
+        nDebugPrint("%s: %i bytes on socket %p", __func__, BytesReceived, Socket);
     }
 
     return BytesReceived;
@@ -241,7 +241,7 @@ int32_t NTServerManager::NT_ReceiveFrom(void *Socket, char *Buffer, int32_t Buff
     BytesReceived = recvfrom((SOCKET)Socket, Buffer, BufferLength, Flags, Peer, PeerLength);
     if (BytesReceived != -1)
     {
-        nDebugPrint("%s: %i bytes on socket %llu", __func__, BytesReceived, Socket);
+        nDebugPrint("%s: %i bytes on socket %p", __func__, BytesReceived, Socket);
     }
 
     return BytesReceived;
@@ -279,7 +279,7 @@ int32_t NTServerManager::NT_Select(int32_t fdsCount, fd_set *Readfds, fd_set *Wr
     }
 
     // Debug info.
-    nDebugPrint("%s returned %u results", __func__, SocketCount);
+    // nDebugPrint("%s returned %u results", __func__, SocketCount);
     return SocketCount;
 }
 int32_t NTServerManager::NT_Send(void *Socket, const char *Buffer, int32_t BufferLength, int32_t Flags)
@@ -293,7 +293,7 @@ int32_t NTServerManager::NT_Send(void *Socket, const char *Buffer, int32_t Buffe
     }
     else
     {
-        nDebugPrint("%s via %llu, %i bytes.", __func__, Socket, BufferLength);
+        nDebugPrint("%s via %p, %i bytes.", __func__, Socket, BufferLength);
         return send((SOCKET)Socket, Buffer, BufferLength, Flags);
     }
 }
@@ -313,7 +313,7 @@ int32_t NTServerManager::NT_SendTo(void *Socket, const char *Buffer, int32_t Buf
     }
     else
     {
-        nDebugPrint("%s via %llu, %i bytes.", __func__, Socket, BufferLength);
+        nDebugPrint("%s via %p, %i bytes.", __func__, Socket, BufferLength);
         return sendto((SOCKET)Socket, Buffer, BufferLength, Flags, Peer, PeerLength);
     }
 }
@@ -359,7 +359,7 @@ hostent *NTServerManager::NT_GetHostByName(const char *Hostname)
 
         if (ResolvedHost != nullptr)
         {
-            nDebugPrint("%s: \"%s\" -> %s", __func__, Hostname, inet_ntoa(*(in_addr*)ResolvedHost_addr_list[0]));
+            nDebugPrint("%s: \"%s\" -> %s", __func__, Hostname, inet_ntoa(*(in_addr*)ResolvedHost->h_addr_list[0]));
         }
 
         return ResolvedHost;
