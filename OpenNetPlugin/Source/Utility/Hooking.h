@@ -38,7 +38,7 @@ inline size_t GetIATAddress(const char* ModuleName, const char* FunctionName, ui
         return 0;
 
     ImportDesc = (PIMAGE_IMPORT_DESCRIPTOR)((Image->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress) + (size_t)ImgBase);
-    for (int i = 0;; i++)
+    for (int i = 0;; ++i)
     {
         if (ImportDesc->Name == NULL)
             break;
@@ -47,7 +47,7 @@ inline size_t GetIATAddress(const char* ModuleName, const char* FunctionName, ui
         {
             if ((ImportDesc->OriginalFirstThunk) != NULL)
             {
-                for (int c = 0;; c++)
+                for (int c = 0;; ++c)
                 {
                     ThunkData = (PIMAGE_THUNK_DATA)((size_t)ImportDesc->OriginalFirstThunk + c * sizeof(IMAGE_THUNK_DATA) + ImgBase);
 
@@ -88,7 +88,7 @@ inline size_t WriteIATAddress(const char* ModuleName, const char* FunctionName, 
     else
         return 0;
 
-    for (int i = 0;; i++)
+    for (int i = 0;; ++i)
     {
         if (ImportDesc->Name == NULL) break;
 
@@ -96,7 +96,7 @@ inline size_t WriteIATAddress(const char* ModuleName, const char* FunctionName, 
         {
             if ((ImportDesc->OriginalFirstThunk) != 0)
             {
-                for (int c = 0;; c++)
+                for (int c = 0;; ++c)
                 {
                     ThunkData = (PIMAGE_THUNK_DATA)((size_t)ImportDesc->OriginalFirstThunk + c*sizeof(IMAGE_THUNK_DATA) + (size_t)ImgBase);
 

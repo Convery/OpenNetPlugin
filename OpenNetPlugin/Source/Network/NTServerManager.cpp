@@ -258,19 +258,19 @@ int32_t NTServerManager::NT_Select(int32_t fdsCount, fd_set *Readfds, fd_set *Wr
         return SocketCount;
 
     // Add our servers.
-    for (auto Iterator = Host_ConnectedSockets.begin(); Iterator != Host_ConnectedSockets.end(); Iterator++)
+    for (auto Iterator = Host_ConnectedSockets.begin(); Iterator != Host_ConnectedSockets.end(); ++Iterator)
     {
         WriteCount = 10; ReadCount = 10;
         Iterator->second->Platform_Select(&ReadCount, ReadSockets, &WriteCount, WriteSockets);
     
         if (Readfds)
         {
-            for (int32_t i = 0; i < ReadCount; i++)
+            for (int32_t i = 0; i < ReadCount; ++i)
             {
                 FD_SET((SOCKET)ReadSockets[i], Readfds);
                 SocketCount++;
             }
-            for (int32_t i = 0; i < WriteCount; i++)
+            for (int32_t i = 0; i < WriteCount; ++i)
             {
                 FD_SET((SOCKET)WriteSockets[i], Writefds);
                 SocketCount++;
@@ -416,7 +416,7 @@ void NTServerManager::PacketProcessingThread()
     {
         std::this_thread::sleep_for(SleepDuration);
 
-        for (auto Iterator = Host_ServerAddresses.begin(); Iterator != Host_ServerAddresses.end(); Iterator++)
+        for (auto Iterator = Host_ServerAddresses.begin(); Iterator != Host_ServerAddresses.end(); ++Iterator)
         {
             try
             {

@@ -43,24 +43,24 @@ const char *GetProgress(uint32_t ProgressType, uint32_t CurrentProgress, uint32_
     switch (ProgressType)
     {
     case 0:
-        for (uint8_t i = 0; i < Characters; i++)
+        for (uint8_t i = 0; i < Characters; ++i)
             InternalBuffer[i] = '#';
         break;
     case 1:
-        for (uint8_t i = 0; i < Characters; i++)
+        for (uint8_t i = 0; i < Characters; ++i)
             InternalBuffer[i] = '*';
         break;
     case 2:
-        for (uint8_t i = 0; i < Characters; i++)
+        for (uint8_t i = 0; i < Characters; ++i)
             InternalBuffer[i] = '-';
         break;
     case 3:
-        for (uint8_t i = 0; i < Characters; i++)
+        for (uint8_t i = 0; i < Characters; ++i)
             InternalBuffer[i] = '>';
         break;
 
     case 4:
-        for (uint8_t i = 0; i < Characters - 1; i++)
+        for (uint8_t i = 0; i < Characters - 1; ++i)
             InternalBuffer[i] = '-';
         InternalBuffer[Characters - 1] = '>';
         break;
@@ -176,7 +176,7 @@ void lConsole::PrintStringRaw(lLine *String)
     // Check if the array is full.
     if (!ArrayIsFull)
     {
-        for (uint32_t i = 0; i < ScrollbackLineCount; i++)
+        for (uint32_t i = 0; i < ScrollbackLineCount; ++i)
         {
             if (ScrollbackLines[i].String[0] == '\0')
             {
@@ -197,7 +197,7 @@ void lConsole::PrintStringRaw(lLine *String)
         ScrollbackLines[0].RGBA = 0;
 
         // Foreach, swap the pointers.
-        for (uint32_t i = 0; i < ScrollbackLineCount - 1; i++)
+        for (uint32_t i = 0; i < ScrollbackLineCount - 1; ++i)
         {
             static lLine TempPointer;
 
@@ -271,7 +271,7 @@ uint32_t lConsole::PrintProgress(uint32_t Start, uint32_t End, const char *Strin
     StaticProgressBuffer = new lProgressBar[ProgressbarCount + 1];
 
     // Copy the old buffer over.
-    for (uint32_t i = 0; i < ProgressbarCount; i++)
+    for (uint32_t i = 0; i < ProgressbarCount; ++i)
         StaticProgressBuffer[i] = Progressbars[i];
     StaticProgressBuffer[ProgressbarCount++] = TempProgress;
 
@@ -291,7 +291,7 @@ uint32_t lConsole::PrintProgress(uint32_t Start, uint32_t End, const char *Strin
 void lConsole::UpdateProgress(uint32_t Id, uint32_t NewValue)
 {
     // Iterate through the bars until the Id is found.
-    for (uint32_t i = 0; i < ProgressbarCount; i++)
+    for (uint32_t i = 0; i < ProgressbarCount; ++i)
     {
         if (Progressbars[i].ProgressBarID == Id)
         {
@@ -370,13 +370,13 @@ void lConsole::Int_UpdateThread()
         GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &OldTextColor);
 
         // For each line in the scrollback.
-        for (uint32_t i = 0; i < ScrollbackLineCount; i++)
+        for (uint32_t i = 0; i < ScrollbackLineCount; ++i)
         {
             // Set the output strings color.
             SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), CompatibleRGBA(ScrollbackLines[i].RGBA));
 
             // Search the string for progress bars.
-            for (uint32_t c = 0; c < ProgressbarCount; c++)
+            for (uint32_t c = 0; c < ProgressbarCount; ++c)
             {
                 if (strstr(ScrollbackLines[i].String, Progressbars[c].ProgressToken))
                 {
@@ -384,7 +384,7 @@ void lConsole::Int_UpdateThread()
                     memset(ProgressBuffer, 0, 257);
 
                     // Create the buffer.
-                    for (int32_t k = 0; k < (int32_t)min(INT32_MAX, strlen(ScrollbackLines[i].String)) - 1; k++)
+                    for (int32_t k = 0; k < (int32_t)min(INT32_MAX, strlen(ScrollbackLines[i].String)) - 1; ++k)
                     {
                         // Copy all the characters up until the token.
                         if (ScrollbackLines[i].String[k + 0] == Progressbars[c].ProgressToken[0] &&
