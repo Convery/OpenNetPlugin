@@ -7,6 +7,7 @@
 */
 
 #include "STDInclude.h"
+#include "Network\NTServerManager.h"
 
 // Version information.
 #define USING_REDACTED_API_2
@@ -21,6 +22,16 @@ extern "C"
 #ifdef USING_REDACTED_API_2
     __declspec(dllexport) int32_t __cdecl PreInit()
     {
+        // Initialize the console so we can log errors.
+        PluginConsole.Initialize(SafeString("Openet.log"));
+
+        // Initialize the platform logic.
+#ifdef _WIN32
+        NTServerManager::InitializeImportHooks();
+#else
+
+#endif
+
         return TRUE;
     };
     __declspec(dllexport) int32_t __cdecl PostInit()
@@ -64,6 +75,13 @@ extern "C"
     {
         // Initialize the console so we can log errors.
         PluginConsole.Initialize(SafeString("Openet.log"));
+
+        // Initialize the platform logic.
+#ifdef _WIN32
+        NTServerManager::InitializeImportHooks();
+#else
+
+#endif
 
         return false;
     };
