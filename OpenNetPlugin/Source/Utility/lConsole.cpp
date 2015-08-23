@@ -104,7 +104,7 @@ bool lConsole::Initialize(void *FileHandle, void *Stream, uint32_t ScreenbufferS
         AttachConsole(GetCurrentProcessId());
 
         // Set the standard streams to use the console.
-        freopen("CONOUT$", "w", (FILE *)&Stream);
+        freopen("CONOUT$", "w", (FILE *)Stream);
 
         // Start the update thread.
         if (UpdateThread.joinable())
@@ -139,7 +139,7 @@ void lConsole::ChangeOutputstream(void *NewStream)
 void lConsole::ChangeOutputfile(void *NewFilehandle, bool CloseCurrentHandle)
 {
     if (CloseCurrentHandle)
-        fclose((FILE *)&this->FileHandle);
+        fclose((FILE *)this->FileHandle);
     this->FileHandle = NewFilehandle;
 }
 void lConsole::ChangeWindowname(const char *NewName)
@@ -212,7 +212,7 @@ void lConsole::PrintStringRaw(lLine *String)
 
     // Print to the stream instantly.
     if(FileHandle != nullptr)
-        fprintf((FILE *)&FileHandle, String->String);
+        fprintf((FILE *)FileHandle, String->String);
 }
 void lConsole::PrintStringRaw(const char *String)
 {
