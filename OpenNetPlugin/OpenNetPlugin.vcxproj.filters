@@ -54,6 +54,9 @@
     <ClInclude Include="Source\NetworkModules\ModuleManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\NetworkModules\MemoryModule.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Network\NTServerManager.cpp">
@@ -69,6 +72,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source\NetworkModules\ModuleManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\NetworkModules\MemoryModule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
