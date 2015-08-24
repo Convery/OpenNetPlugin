@@ -68,5 +68,8 @@
     <ClCompile Include="Source\Utility\CSVManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Source\NetworkModules\ModuleManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

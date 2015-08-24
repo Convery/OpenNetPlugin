@@ -12,9 +12,8 @@
 
 class ModuleManager
 {
-    uint32_t             ModuleCount;
-    struct onModule     *ModuleList;
-    class  CSVManager   *FileNanager;
+    static std::vector<struct onModule *>   ModuleList;
+    static class  CSVManager                *FileNanager;
 
 public:
     // Decrypt a module using the license key.
