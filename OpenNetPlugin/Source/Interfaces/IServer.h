@@ -17,7 +17,7 @@ class IServer
 {
 protected:
     // Reserved storage.
-    uint8_t LocalStorage[16];
+    uint8_t LocalStorage[16]{};
 
     // Represents an IP on the internal network.
     uint32_t InternalAddress4;

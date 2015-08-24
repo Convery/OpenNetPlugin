@@ -12,7 +12,7 @@
 
 static char VariadicBuffer[4][8192];
 static uint32_t NextVariadicBufferIndex;
-static std::mutex ThreadSafe;
+static std::mutex vaThreadSafe;
 
 inline const char *va(const char *fmt, ...)
 {
@@ -20,7 +20,7 @@ inline const char *va(const char *fmt, ...)
     int32_t StringLength = 0;
     char *DestinationBuffer = nullptr;
 
-    ThreadSafe.lock();
+    vaThreadSafe.lock();
     DestinationBuffer = &VariadicBuffer[NextVariadicBufferIndex][0];
     SecureZeroMemory(DestinationBuffer, 8192);							// Clear any old data..
     NextVariadicBufferIndex = (NextVariadicBufferIndex + 1) % 4;		// Mod by buffercount.
@@ -29,7 +29,7 @@ inline const char *va(const char *fmt, ...)
     StringLength = _vsnprintf_s(DestinationBuffer, 8192, _TRUNCATE, fmt, VarArgs);
     va_end(VarArgs);
 
-    ThreadSafe.unlock();
+    vaThreadSafe.unlock();
     if (StringLength < 0 || StringLength == 8192)
     {
         fDebugPrint("%s - Attempted to overrun string, increase the buffer. StrLen: %i", __func__, StringLength);

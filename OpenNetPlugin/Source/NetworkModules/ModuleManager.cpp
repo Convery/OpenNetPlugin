@@ -32,9 +32,14 @@ bool ModuleManager::DecryptModule(const char *Filename, const char *License)
     uint32_t Modulecount{ ModuleList.size() };
     onModule *NewModule;
     FILE *OnDiskModule;
+    std::string Path;
+
+    // Create the path.
+    Path.append("Plugins\\OpennetStorage\\Modules\\");
+    Path.append(Filename);
 
     // Read the file from disk.
-    if (fopen_s(&OnDiskModule, Filename, "rb"))
+    if (fopen_s(&OnDiskModule, Path.c_str(), "rb"))
     {
         fDebugPrint("Failed to read a onModule from disk.", "");
         return false;
@@ -113,7 +118,7 @@ IServer *ModuleManager::CreateServerInstance(onModule *Module, const char *Hostn
     // The developer of the modue forgot to export the function.
     if (!CreateServer)
     {
-        fDebugPrint("%s: Modue did not export \"CreateServer\"", __func__);
+        fDebugPrint("%s: Module did not export \"CreateServer\"", __func__);
         return nullptr;
     }
 

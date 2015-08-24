@@ -27,7 +27,7 @@ extern "C"
     __declspec(dllexport) int32_t __cdecl PreInit()
     {
         // Initialize the console so we can log errors.
-        Global::PluginConsole.Initialize(SafeString("Openet.log"));
+        Global::PluginConsole.Initialize(SafeString("Plugins\\OpennetStorage\\Openet.log"));
 
         // Initialize the platform logic.
 #ifdef _WIN32
@@ -79,7 +79,7 @@ extern "C"
     __declspec(dllexport) bool __stdcall Plugin_PreGameInitialization(void)
     {
         // Initialize the console so we can log errors.
-        Global::PluginConsole.Initialize(SafeString("Openet.log"));
+        Global::PluginConsole.Initialize(SafeString("Plugins\\OpennetStorage\\Openet.log"));
 
         // Initialize the platform logic.
 #ifdef _WIN32

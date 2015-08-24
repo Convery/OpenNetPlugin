@@ -93,6 +93,8 @@ int32_t NTServerManager::NT_Connect(void *Socket, const sockaddr *Address, int32
         if (Server != nullptr)
         {
             Host_ConnectedSockets[Socket] = Server;
+            Server->Platform_Connect(Socket, (void *)Address, AddressLength);
+
             if (!Host_SocketBlockStatus[Socket])
             {
                 return 0;
