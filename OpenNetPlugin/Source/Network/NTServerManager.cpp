@@ -32,9 +32,9 @@ IServer *NTServerManager::FindServerBySocket(void *Socket)
     else
         return nullptr;
 }
-IServer *NTServerManager::FindServerByAddress(uint64_t IPv6Address)
+IServer *NTServerManager::FindServerByAddress(uint64_t IPAddress)
 {
-    auto Iterator = Host_ServerAddresses.find(IPv6Address);
+    auto Iterator = Host_ServerAddresses.find(IPAddress);
 
     if (Iterator != Host_ServerAddresses.end())
         return Iterator->second;

@@ -26,7 +26,7 @@ class NTServerManager
 
     // Map iteration.
     static class IServer *FindServerBySocket(void *Socket);
-    static class IServer *FindServerByAddress(uint64_t IPv6Address);
+    static class IServer *FindServerByAddress(uint64_t IPAddress);
     static class IServer *FindServerByHost(const char *Hostname);
 
     // Old winsock replacement methods.
