@@ -34,12 +34,13 @@ IServer *NTServerManager::FindServerBySocket(void *Socket)
 }
 IServer *NTServerManager::FindServerByAddress(uint64_t IPAddress)
 {
-    auto Iterator = Host_ServerAddresses.find(IPAddress);
+    for (auto Iterator = Host_ServerAddresses.begin(); Iterator != Host_ServerAddresses.end(); ++Iterator)
+    {
+        if (IPAddress == Iterator->second->InternalAddress4) return Iterator->second;
+        if (IPAddress == Iterator->second->InternalAddress6) return Iterator->second;
+    }
 
-    if (Iterator != Host_ServerAddresses.end())
-        return Iterator->second;
-    else
-        return nullptr;
+    return nullptr;
 }
 IServer *NTServerManager::FindServerByHost(const char *Hostname)
 {
