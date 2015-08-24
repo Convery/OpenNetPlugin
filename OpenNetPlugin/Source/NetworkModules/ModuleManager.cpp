@@ -8,6 +8,7 @@
 */
 
 #include "ModuleManager.h"
+#include "MemoryModule.h"
 #include "..\Interfaces\IServer.h"
 
 // OpennetModule.
@@ -15,7 +16,7 @@ struct onModule
 {
     std::string Filename;
     std::basic_string<uint8_t> DecryptedFile;
-    void *FileHandle{ nullptr };
+    HMEMORYMODULE ModuleHandle;
 };
 
 // Class properties.
@@ -92,13 +93,29 @@ bool ModuleManager::DecryptModule(const char *Filename, const char *License)
 // Load the module into memory.
 bool ModuleManager::LoadModule(onModule *Module)
 {
-    return false;
+    // Load the module from memory.
+    Module->ModuleHandle = MemoryLoadLibrary(Module->DecryptedFile.data());
+    return Module->ModuleHandle != NULL;
 };
 
 // Create a server with the specified host.
 IServer *ModuleManager::CreateServerInstance(onModule *Module, const char *Hostname)
 {
+    // This should not happen.
+    if (Module->ModuleHandle == NULL)
+    {
+        fDebugPrint("%s: Tried to call an invalid handle.", __func__);
+        return nullptr;
+    }
 
+    IServer *(*CreateServer)(const char *) = (IServer *(*)(const char *))MemoryGetProcAddress(Module->ModuleHandle, "CreateServer");
 
-    return nullptr;
+    // The developer of the modue forgot to export the function.
+    if (!CreateServer)
+    {
+        fDebugPrint("%s: Modue did not export \"CreateServer\"", __func__);
+        return nullptr;
+    }
+
+    return CreateServer(Hostname);
 };
