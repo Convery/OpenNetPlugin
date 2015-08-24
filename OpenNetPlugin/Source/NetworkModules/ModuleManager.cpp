@@ -54,7 +54,7 @@ bool ModuleManager::DecryptModule(const char *Filename, const char *License)
         if (fread_s(Filebuffer, Filesize + 1, 1, Filesize, OnDiskModule) == Filesize)
         {
             // If no license is supplied, we assume it's not encrypted.
-            if (License != nullptr)
+            if (strlen(License) > 4)
             {
                 // Generate an IV for the decryption.
                 HashStorage = FNV1_64Hash((void *)License, strlen(License));
@@ -146,6 +146,10 @@ int32_t ModuleManager::LoadAllModules()
         {
             if (!LoadModule(ModuleList.back()))
                 ModuleList.pop_back();
+        }
+        else
+        {
+            fDebugPrint("%s: Failed to load module \"%s\".", __func__, (*FileManager.Buffer)[i][1].c_str());
         }
 
     LABEL_SKIP_LOADING:;
