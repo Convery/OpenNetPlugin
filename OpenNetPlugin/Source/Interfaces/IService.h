@@ -23,5 +23,5 @@ protected:
 public:
     // Get service info and handler.
     virtual uint32_t GetServiceID() = 0;
-    virtual bool HandlePacket(class IServer *Caller, std::basic_string<uint8_t> &PacketData) = 0;
+    virtual bool HandlePacket(class IServer *Caller, std::string &PacketData) = 0;
 };
