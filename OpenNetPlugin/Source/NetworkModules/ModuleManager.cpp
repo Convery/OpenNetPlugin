@@ -10,6 +10,7 @@
 #include "ModuleManager.h"
 #include "MemoryModule.h"
 #include "..\Interfaces\IServer.h"
+#include "..\Network\NTServerManager.h"
 
 // OpennetModule.
 struct onModule
@@ -21,7 +22,6 @@ struct onModule
 
 // Class properties.
 std::vector<onModule *> ModuleManager::ModuleList;
-CSVManager              *ModuleManager::FileNanager;
 
 // Decrypt a module using the license key.
 bool ModuleManager::DecryptModule(const char *Filename, const char *License)
@@ -119,3 +119,61 @@ IServer *ModuleManager::CreateServerInstance(onModule *Module, const char *Hostn
 
     return CreateServer(Hostname);
 };
+
+// Load the CSV, create servers for each entry
+int32_t ModuleManager::LoadAllModules()
+{
+    int32_t ServerCount{};
+    CSVManager FileManager;
+
+    // Read the entries from the CSV.
+    FileManager.ReadFile("Plugins\\OpennetStorage\\Modules.csv", 3);
+
+    // Decrypt and load all modules.
+    for (uint32_t i = 0; i < FileManager.Buffer->size(); ++i)
+    {
+        // Check for duplicates.
+        for (uint32_t c = 0; c < ModuleList.size(); ++c)
+        {
+            if (!_stricmp(ModuleList[c]->Filename.c_str(), (*FileManager.Buffer)[i][1].c_str()))
+            {
+                goto LABEL_SKIP_LOADING;
+            }
+        }
+
+        // Decrypt and load.
+        if (DecryptModule((*FileManager.Buffer)[i][1].c_str(), (*FileManager.Buffer)[i][2].c_str()))
+        {
+            if (!LoadModule(ModuleList.back()))
+                ModuleList.pop_back();
+        }
+
+    LABEL_SKIP_LOADING:;
+    }
+
+    // Load all requested servers.
+    for (uint32_t i = 0; i < FileManager.Buffer->size(); ++i)
+    {
+        for (uint32_t c = 0; c < ModuleList.size(); ++c)
+        {
+            if (!_stricmp(ModuleList[c]->Filename.c_str(), (*FileManager.Buffer)[i][1].c_str()))
+            {
+                static IServer *NewServer;
+                NewServer = CreateServerInstance(ModuleList[c], (*FileManager.Buffer)[i][0].c_str());
+
+#ifdef _WIN32
+                if (NewServer != nullptr)
+                {
+                    NTServerManager::RegisterServerInterface(NewServer);
+                    ServerCount++;
+                }
+#else
+#endif
+            }
+        }
+
+    }
+
+    fDebugPrint("%s: Loaded %i modules.", __func__, ServerCount);
+    return ServerCount;
+}

@@ -32,6 +32,7 @@ extern "C"
         // Initialize the platform logic.
 #ifdef _WIN32
         NTServerManager::InitializeImportHooks();
+        ModuleManager::LoadAllModules();
 #else
 
 #endif
@@ -83,6 +84,7 @@ extern "C"
         // Initialize the platform logic.
 #ifdef _WIN32
         NTServerManager::InitializeImportHooks();
+        ModuleManager::LoadAllModules();
 #else
 
 #endif

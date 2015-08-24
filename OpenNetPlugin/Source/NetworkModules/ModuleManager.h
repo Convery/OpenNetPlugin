@@ -13,7 +13,6 @@
 class ModuleManager
 {
     static std::vector<struct onModule *>   ModuleList;
-    static class  CSVManager                *FileNanager;
 
 public:
     // Decrypt a module using the license key.
@@ -24,4 +23,7 @@ public:
 
     // Create a server with the specified host.
     static class IServer *CreateServerInstance(struct onModule *Module, const char *Hostname);
+
+    // Load the CSV, create servers for each entry
+    static int32_t LoadAllModules();
 };
