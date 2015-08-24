@@ -15,7 +15,7 @@ struct onModule
 {
     std::string Filename;
     std::basic_string<uint8_t> DecryptedFile;
-    void *FileHandle;
+    void *FileHandle{ nullptr };
 };
 
 // Class properties.
@@ -90,13 +90,15 @@ bool ModuleManager::DecryptModule(const char *Filename, const char *License)
 };
 
 // Load the module into memory.
-bool ModuleManager::LoadModule(struct onModule *Module)
+bool ModuleManager::LoadModule(onModule *Module)
 {
     return false;
 };
 
 // Create a server with the specified host.
-IServer *ModuleManager::CreateServerInstance(struct onModule *Module, const char *Hostname)
+IServer *ModuleManager::CreateServerInstance(onModule *Module, const char *Hostname)
 {
+
+
     return nullptr;
 };
