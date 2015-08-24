@@ -8,6 +8,7 @@
 
 #include "STDInclude.h"
 #include "Network\NTServerManager.h"
+#include "NetworkModules\ModuleManager.h"
 
 // Version information.
 #define USING_REDACTED_API_2

@@ -51,6 +51,9 @@
     <ClInclude Include="Source\Utility\CSVManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Source\NetworkModules\ModuleManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Network\NTServerManager.cpp">
