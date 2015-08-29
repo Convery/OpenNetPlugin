@@ -33,6 +33,7 @@ extern "C"
 #ifdef _WIN32
         NTServerManager::InitializeImportHooks();
         ModuleManager::LoadAllModules();
+        NTServerManager::StartProcessingPackets();
 #else
 
 #endif
@@ -85,6 +86,7 @@ extern "C"
 #ifdef _WIN32
         NTServerManager::InitializeImportHooks();
         ModuleManager::LoadAllModules();
+        NTServerManager::StartProcessingPackets();
 #else
 
 #endif
