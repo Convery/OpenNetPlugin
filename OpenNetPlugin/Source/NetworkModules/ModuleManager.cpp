@@ -122,7 +122,12 @@ IServer *ModuleManager::CreateServerInstance(onModule *Module, const char *Hostn
         return nullptr;
     }
 
-    return CreateServer(Hostname);
+    // Let this string be free.
+    static char *FloatingString;
+    FloatingString = new char[strlen(Hostname) + 1]();
+    memcpy(FloatingString, Hostname, strlen(Hostname));
+
+    return CreateServer(FloatingString);
 };
 
 // Load the CSV, create servers for each entry
