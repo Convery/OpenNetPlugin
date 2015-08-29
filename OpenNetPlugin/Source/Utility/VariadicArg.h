@@ -9,8 +9,9 @@
 #pragma once
 #include "..\STDInclude.h"
 #include <mutex>
+#include <stdarg.h>
 
-static char VariadicBuffer[4][8192];
+static char VariadicBuffer[4][2048];
 static uint32_t NextVariadicBufferIndex;
 static std::mutex vaThreadSafe;
 
@@ -22,15 +23,15 @@ inline const char *va(const char *fmt, ...)
 
     vaThreadSafe.lock();
     DestinationBuffer = &VariadicBuffer[NextVariadicBufferIndex][0];
-    SecureZeroMemory(DestinationBuffer, 8192);							// Clear any old data..
+    memset(DestinationBuffer, 0, 2048);							// Clear any old data..
     NextVariadicBufferIndex = (NextVariadicBufferIndex + 1) % 4;		// Mod by buffercount.
 
     va_start(VarArgs, fmt);
-    StringLength = _vsnprintf_s(DestinationBuffer, 8192, _TRUNCATE, fmt, VarArgs);
+    StringLength = _vsnprintf_s(DestinationBuffer, 2048, _TRUNCATE, fmt, VarArgs);
     va_end(VarArgs);
 
     vaThreadSafe.unlock();
-    if (StringLength < 0 || StringLength == 8192)
+    if (StringLength < 0 || StringLength == 2048)
     {
         fDebugPrint("%s - Attempted to overrun string, increase the buffer. StrLen: %i", __func__, StringLength);
     }
