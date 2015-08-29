@@ -373,10 +373,9 @@ hostent *NTServerManager::NT_GetHostByName(const char *Hostname)
 bool NTServerManager::InitializeImportHooks()
 {
 #define PATCH_WINSOCK_IAT(name, function) \
-    PatchCount += WriteIATAddress("wsock32.dll", name, BaseAddress, function) ? 1 : 0; \
-    PatchCount += WriteIATAddress("WS2_32.dll", name, BaseAddress, function) ? 1 : 0; 
+    PatchCount += ReplaceIATEntry("wsock32.dll", name, function) ? 1 : 0; \
+    PatchCount += ReplaceIATEntry("WS2_32.dll", name, function) ? 1 : 0; 
 
-    uint64_t BaseAddress = (uint64_t)GetModuleHandleA(NULL);
     uint32_t PatchCount = 0;
 
     PATCH_WINSOCK_IAT("accept", NT_Accept);
