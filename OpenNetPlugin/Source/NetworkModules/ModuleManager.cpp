@@ -47,6 +47,9 @@ bool ModuleManager::DecryptModule(const char *Filename, const char *License)
     // Load from disk instead of memory.
     if (strstr(GetCommandLineA(), "-MODULES_FROM_DISK"))
     {
+        // Loadlibrary wants an extension.
+        Path.append(".dll");
+
         // Add our new module to the vector.
         NewModule = new onModule();
         NewModule->Filename = Filename;
@@ -56,7 +59,11 @@ bool ModuleManager::DecryptModule(const char *Filename, const char *License)
         if (NewModule->ModuleHandle.Disk)
             ModuleList.push_back(NewModule);
         else
+        {
+            fDebugPrint("Failed to read a onModule from disk with error: %i", GetLastError());
             delete NewModule;
+        }
+            
 
         return ModuleList.size() > Modulecount;
     }
@@ -64,7 +71,7 @@ bool ModuleManager::DecryptModule(const char *Filename, const char *License)
     // Read the file from disk.
     if (fopen_s(&OnDiskModule, Path.c_str(), "rb"))
     {
-        fDebugPrint("Failed to read a onModule from disk.", "");
+        fDebugPrint("Failed to read a onModule from disk with error: %i", GetLastError());
         return false;
     }
     else
@@ -124,7 +131,7 @@ bool ModuleManager::LoadModule(onModule *Module)
 {
     // Verify that the module should be loaded from memory.
     if (Module->LoadedFromDisk)
-        return false;
+        return true;
 
     // Load the module from memory.
     Module->ModuleHandle.Memory = MemoryLoadLibrary(Module->DecryptedFile.data());
