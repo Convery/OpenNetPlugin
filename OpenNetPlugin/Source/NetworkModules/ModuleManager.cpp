@@ -151,8 +151,11 @@ IServer *ModuleManager::CreateServerInstance(onModule *Module, const char *Hostn
     }
 
     // Load from memory or EAT.
-    if(Module->LoadedFromDisk)
-        CreateServer = (IServer *(*)(const char *))DebugGetProcAddress(Module->Filename.c_str(), "CreateServer");
+    if (Module->LoadedFromDisk)
+    {
+        std::string TempName = Module->Filename; TempName.append(".dll");
+        CreateServer = (IServer *(*)(const char *))DebugGetProcAddress(TempName.c_str(), "CreateServer");
+    }
     else
         CreateServer = (IServer *(*)(const char *))MemoryGetProcAddress(Module->ModuleHandle.Memory, "CreateServer");
 
