@@ -17,7 +17,13 @@ struct onModule
 {
     std::string Filename;
     std::basic_string<uint8_t> DecryptedFile;
-    HMEMORYMODULE ModuleHandle;
+    bool LoadedFromDisk;
+    union 
+    {
+        HMEMORYMODULE Memory;
+        void *Disk;
+    } ModuleHandle;
+    
 };
 
 // Class properties.
@@ -37,6 +43,23 @@ bool ModuleManager::DecryptModule(const char *Filename, const char *License)
     // Create the path.
     Path.append("Plugins\\OpennetStorage\\Modules\\");
     Path.append(Filename);
+
+    // Load from disk instead of memory.
+    if (strstr(GetCommandLineA(), "-MODULES_FROM_DISK"))
+    {
+        // Add our new module to the vector.
+        NewModule = new onModule();
+        NewModule->Filename = Filename;
+        NewModule->LoadedFromDisk = true;
+        NewModule->ModuleHandle.Disk = LoadLibraryA(Path.c_str());
+
+        if (NewModule->ModuleHandle.Disk)
+            ModuleList.push_back(NewModule);
+        else
+            delete NewModule;
+
+        return ModuleList.size() > Modulecount;
+    }
 
     // Read the file from disk.
     if (fopen_s(&OnDiskModule, Path.c_str(), "rb"))
@@ -83,6 +106,7 @@ bool ModuleManager::DecryptModule(const char *Filename, const char *License)
             // Add our new module to the vector.
             NewModule = new onModule();
             NewModule->Filename = Filename;
+            NewModule->LoadedFromDisk = false;
             NewModule->DecryptedFile.append(Filebuffer, Filesize);
             ModuleList.push_back(NewModule);
         }
@@ -98,22 +122,32 @@ bool ModuleManager::DecryptModule(const char *Filename, const char *License)
 // Load the module into memory.
 bool ModuleManager::LoadModule(onModule *Module)
 {
+    // Verify that the module should be loaded from memory.
+    if (Module->LoadedFromDisk)
+        return false;
+
     // Load the module from memory.
-    Module->ModuleHandle = MemoryLoadLibrary(Module->DecryptedFile.data());
-    return Module->ModuleHandle != NULL;
+    Module->ModuleHandle.Memory = MemoryLoadLibrary(Module->DecryptedFile.data());
+    return Module->ModuleHandle.Memory != NULL;
 };
 
 // Create a server with the specified host.
 IServer *ModuleManager::CreateServerInstance(onModule *Module, const char *Hostname)
 {
-    // This should not happen.
-    if (Module->ModuleHandle == NULL)
+    IServer *(*CreateServer)(const char *);
+
+    // This should not happen, but checking incase it's modified in the future.
+    if (Module->LoadedFromDisk ? Module->ModuleHandle.Disk == NULL : Module->ModuleHandle.Memory == NULL)
     {
         fDebugPrint("%s: Tried to call an invalid handle.", __func__);
         return nullptr;
     }
 
-    IServer *(*CreateServer)(const char *) = (IServer *(*)(const char *))MemoryGetProcAddress(Module->ModuleHandle, "CreateServer");
+    // Load from memory or EAT.
+    if(Module->LoadedFromDisk)
+        CreateServer = (IServer *(*)(const char *))DebugGetProcAddress(Module->Filename.c_str(), "CreateServer");
+    else
+        CreateServer = (IServer *(*)(const char *))MemoryGetProcAddress(Module->ModuleHandle.Memory, "CreateServer");
 
     // The developer of the modue forgot to export the function.
     if (!CreateServer)
@@ -122,7 +156,7 @@ IServer *ModuleManager::CreateServerInstance(onModule *Module, const char *Hostn
         return nullptr;
     }
 
-    // Let this string be free.
+    // Let this string be free, the module can clean it up.
     static char *FloatingString;
     FloatingString = new char[strlen(Hostname) + 1]();
     memcpy(FloatingString, Hostname, strlen(Hostname));
