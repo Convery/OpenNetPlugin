@@ -111,7 +111,8 @@ inline void *PE_ReplaceIATEntry(const char *Modulename, const char *Functionname
     PIMAGE_THUNK_DATA ImportThunkData;
 
     // Find the export in the module we are interested in.
-    TargetAddress = PE_DebugGetProcAddress(Modulename, Functionname);
+    TargetAddress = GetProcAddress(GetModuleHandleA(Modulename), Functionname);
+    // TargetAddress = PE_DebugGetProcAddress(Modulename, Functionname);
     if (TargetAddress == nullptr)
     {
         // There should be plenty of debug info from GetExportOrdinal.
