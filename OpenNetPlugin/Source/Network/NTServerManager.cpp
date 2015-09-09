@@ -309,7 +309,7 @@ int32_t NTServerManager::NT_SendTo(void *Socket, const char *Buffer, int32_t Buf
     {
         // Emplace the server.
         Host_ConnectedSockets[Socket] = Server;
-        memcpy(Server->LocalStorage, Peer, sizeof(sockaddr));
+        memcpy(&Server->LocalStorage[SERVER_HOST_INFO], Peer, sizeof(sockaddr));
 
         nDebugPrint("%s to \"%s\", %i bytes.", __func__, Server->Hostname, BufferLength);
         return Server->Platform_Send((uint8_t *)Buffer, BufferLength, Socket);

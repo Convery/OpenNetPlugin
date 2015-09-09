@@ -12,12 +12,15 @@
 #include "..\STDInclude.h"
 #include <cstring>
 
+// Indexes for local storage.
+#define SERVER_HOST_INFO 0
+
 // The base interface for local servers.
 class IServer
 {
 protected:
     // Reserved storage.
-    uint8_t LocalStorage[16]{};
+    uint8_t LocalStorage[32]{};
 
     // Represents an IP on the internal network.
     uint32_t InternalAddress4;
