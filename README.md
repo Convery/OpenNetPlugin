@@ -17,4 +17,4 @@ Developers can thus license their modules to projects and customers, as well as 
 As with all general tools, this can be used for a myriad of tools and projects.
 Our goal is mainly to help game developers, anti-malware researchers and academics to work offline.
 Contributors to this project are not to be held liable for whatever users do.
-So stop sending me C&D letters.
+So stop refrain from sending me or other contributors legal notices as we are not liable.
